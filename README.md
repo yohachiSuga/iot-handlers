@@ -66,3 +66,14 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 ### `npm run build` fails to minify
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
+
+### refer websites
+
+- https://serverless-stack.com/chapters/create-a-cognito-test-user.html
+- https://dev.classmethod.jp/cloud/aws/aws-iot-cognito-auth/
+
+NOTE: attach enough policy which includes s3 acccess, lambda access and iot access to iam role 
+
+### to host website on S3.
+$ aws s3 sync build/ s3://agl-demo-webapp --exclude '*.DS_Store' --acl public-read --profile ***   
