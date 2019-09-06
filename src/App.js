@@ -13,9 +13,12 @@ export default class App extends Component{
     this.state= {
       latestImage: "",
       osstatsTopic:"os/stat",
+      cameraStopTopic:"camera/stop",
+      cameraStartTopic:"camera/start",
       ossstasMessage:"",
       targetFileName:"",
-      targetImage:""
+      targetImage:"",
+	  upload:true
     }
 
     this.getLatestImage()
@@ -67,8 +70,9 @@ export default class App extends Component{
   handleSubscribe = () => {
     PubSub.subscribe(this.state.osstatsTopic).subscribe({
       next:data=> {
+        const newMessage = data.value["osstat"]+"\r\n"+this.state.ossstasMessage
         this.setState({
-          ossstasMessage:data.value["osstat"]
+          ossstasMessage:newMessage
         })
       },
       error:error => console.log(error),
@@ -130,37 +134,63 @@ export default class App extends Component{
     ).catch(err=>console.log(err))
   }
 
+  suspendUploadImage = async () => {
+    const data = await PubSub.publish(this.state.cameraStopTopic,{msg:"stop camera"})
+
+    console.log("publish camera stop")
+    this.setState({
+      upload:false
+    })
+  }
+
+  resumeUploadImage = async () =>{  
+    await PubSub.publish(this.state.cameraStartTopic,{msg:"start camera"})
+
+    console.log("publish camera start")
+    this.setState({
+      upload:true
+    })
+  }
 
   render(){
     const latestImageComponent = this.state.latestImage ?
-    <img src={this.state.latestImage} width="500px" height="500px" alt="polling latest image"></img> :
+    <img src={this.state.latestImage} width="500px" height="500px"></img> :
     <div></div>
 
     const targetImageComponent = this.state.targetImage ?
-    <img src={this.state.targetImage} width="500px" height="500px" alt="not specified..."></img>:
+    <img src={this.state.targetImage} width="500px" height="500px"></img>:
     <div></div>
+
+	const uploadButton = 
+  <Button onClick={this.state.upload? this.suspendUploadImage:this.resumeUploadImage}>{this.state.upload ? '②カメラ画像の取得中止':'②カメラ画像の取得再開'}</Button>
 
     return (
       <div className="App">
         <Container className="App-header" fluid="true">
           <Row>
             <Col sm={4} md={4} lg={4}>
-              <label>The latest image from the device</label>
+              <label>①リアルタイムなカメラ画像表示</label>
               {latestImageComponent}
+              <br/>
+              {uploadButton}
             </Col>
             <Col  sm={4} md={4} lg={4}>
-              <label>storage information of the device</label>
-              <textarea value={this.state.ossstasMessage} readOnly rows="10"></textarea>
+              <label>③車載器内のストレージ状態確認</label><br/>
+              <textarea value={this.state.ossstasMessage} readOnly rows="10" cols="27"></textarea>
             </Col>
             <Col   sm={4} md={4} lg={4}>
               <Form onSubmit={this.getImageFromGGCore}>
-                <Form.Label>Image file name</Form.Label>
+                <Form.Label>④ストレージ内のカメラ画像取得要求</Form.Label>
                 <Form.Control type="text"  value={this.state.targetFileName} onChange={this.handleChange}></Form.Control>
                 <Button variant="primary" type="submit">submit</Button>
               </Form>
               {targetImageComponent}
             </Col>
           </Row>  
+          <Row>
+            <Col sm={4} md={4} lg={4} >
+            </Col>
+          </Row>
         </Container>
       </div>
     );  

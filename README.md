@@ -76,4 +76,5 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/tr
 NOTE: attach enough policy which includes s3 acccess, lambda access and iot access to iam role 
 
 ### to host website on S3.
+$ GENERATE_SOURCEMAP=false yarn run build
 $ aws s3 sync build/ s3://agl-demo-webapp --exclude '*.DS_Store' --acl public-read --profile ***   
