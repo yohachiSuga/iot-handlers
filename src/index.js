@@ -6,6 +6,7 @@ import * as serviceWorker from './serviceWorker';
 import Amplify, {Storage, Auth, PubSub } from "aws-amplify";
 import { AWSIoTProvider } from "@aws-amplify/pubsub/lib/Providers";
 import config from "./config";
+import { BrowserRouter as Router } from "react-router-dom";
 
 Amplify.configure({
     Storage:{
@@ -26,7 +27,11 @@ Amplify.addPluggable(new AWSIoTProvider({
     aws_pubsub_endpoint:config.iot.ENDPOINT
 }))
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(
+    <Router>
+        <App />
+    </Router>
+, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
